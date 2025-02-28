@@ -231,3 +231,158 @@ async def generate_cover_letter(resume_file: UploadFile = File(...), job_descrip
     return {
         "cover_letter": result
     }
+
+@app.post("/generate_skill_development_suggestions/")
+async def generate_skill_development_suggestions(resume_file: UploadFile = File(...), job_description_file: UploadFile = File(...)):
+    if not resume_file or not job_description_file:
+        raise HTTPException(status_code=400, detail="Both resume and job description must be uploaded.")
+
+    resume_extension = resume_file.filename.split(".")[-1].lower()
+    job_description_extension = job_description_file.filename.split(".")[-1].lower()
+
+    resume_bytes = await resume_file.read()
+    job_description_bytes = await job_description_file.read()
+
+    # Extract text from resume and job description files
+    if resume_extension == "pdf":
+        resume_text = extract_text_from_pdf(resume_bytes)
+    elif resume_extension == "docx":
+        resume_text = extract_text_from_word(resume_bytes)
+    else:
+        raise HTTPException(status_code=400, detail="Unsupported file type for resume. Only PDF and Word (.docx) are allowed.")
+
+    if job_description_extension == "pdf":
+        job_description_text = extract_text_from_pdf(job_description_bytes)
+    elif job_description_extension == "docx":
+        job_description_text = extract_text_from_word(job_description_bytes)
+    else:
+        raise HTTPException(status_code=400, detail="Unsupported file type for job description. Only PDF and Word (.docx) are allowed.")
+
+    # Create a prompt to ask ChatGPT for skill development suggestions and industry trends
+    prompt = f"""
+    Please analyze the following resume and job description, and provide the following:
+    
+    1. **Learning Path Recommendations**: Suggest courses, certifications, or skills the candidate should work on to improve their qualifications and better match the job description. For example, if AWS knowledge is lacking, recommend specific AWS courses or certifications.
+    
+    2. **Industry Trends**: Based on the resume's skill set and the job description, provide insights into emerging industry trends and key skills that are becoming more important for professionals in this field.
+
+    Here is the resume:
+    {resume_text}
+
+    Here is the job description:
+    {job_description_text}
+
+    Please provide actionable suggestions and trends to help the candidate develop their skills and stay competitive in the industry.
+    """
+
+    # Make the ChatGPT API call to generate the skill development suggestions and trends
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are a professional career advisor."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=1000  # Adjust token limit based on expected length of response
+    )
+
+    # Parse the response from ChatGPT
+    result = response.choices[0].message.content.strip()
+
+    return {
+        "skill_development_suggestions": result
+    }
+
+# Function to generate mock interview questions
+@app.post("/generate_mock_interview_questions/")
+async def generate_mock_interview_questions(resume_file: UploadFile = File(...), job_description_file: UploadFile = File(...)):
+    if not resume_file or not job_description_file:
+        raise HTTPException(status_code=400, detail="Both resume and job description must be uploaded.")
+
+    resume_extension = resume_file.filename.split(".")[-1].lower()
+    job_description_extension = job_description_file.filename.split(".")[-1].lower()
+
+    resume_bytes = await resume_file.read()
+    job_description_bytes = await job_description_file.read()
+
+    if resume_extension == "pdf":
+        resume_text = extract_text_from_pdf(resume_bytes)
+    elif resume_extension == "docx":
+        resume_text = extract_text_from_word(resume_bytes)
+    else:
+        raise HTTPException(status_code=400, detail="Unsupported file type for resume. Only PDF and Word (.docx) are allowed.")
+
+    if job_description_extension == "pdf":
+        job_description_text = extract_text_from_pdf(job_description_bytes)
+    elif job_description_extension == "docx":
+        job_description_text = extract_text_from_word(job_description_bytes)
+    else:
+        raise HTTPException(status_code=400, detail="Unsupported file type for job description. Only PDF and Word (.docx) are allowed.")
+
+    # Create a prompt for generating mock interview questions
+    prompt = f"""
+    Based on the following resume and job description, generate a list of mock interview questions for the candidate applying to the position. These questions should cover:
+    1. The candidate's experience with the skills mentioned in the job description.
+    2. The candidate's approach to relevant tasks or projects listed in the resume.
+    3. Behavioral and situational questions that align with the role.
+
+    Here is the resume:
+    {resume_text}
+
+    Here is the job description:
+    {job_description_text}
+
+    Please provide a list of at least 5 interview questions.
+    """
+
+    # Make the ChatGPT API call to generate interview questions
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are a professional interviewer."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=1000
+    )
+
+    # Parse the response from ChatGPT
+    result = response.choices[0].message.content.strip()
+
+    return {
+        "mock_interview_questions": result
+    }
+
+# Function to simulate interview feedback based on answers
+@app.post("/generate_interview_feedback/")
+async def generate_interview_feedback(answers: str):
+    if not answers:
+        raise HTTPException(status_code=400, detail="No answers provided for feedback.")
+
+    # Create a prompt to ask ChatGPT to simulate feedback on the candidate's interview answers
+    prompt = f"""
+    Please simulate feedback on the following interview answers. The feedback should cover aspects such as:
+    1. Clarity and conciseness of the answers.
+    2. Relevance to the job description and resume.
+    3. Suggestions for improvement, if any.
+
+    Here are the candidate's answers:
+    {answers}
+
+    Please provide constructive feedback on these answers.
+    """
+
+    # Make the ChatGPT API call to generate feedback
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are a professional interview coach."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=1000
+    )
+
+    # Parse the response from ChatGPT
+    result = response.choices[0].message.content.strip()
+
+    return {
+        "interview_feedback": result
+    }
