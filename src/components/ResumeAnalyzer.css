@@ -1,0 +1,410 @@
+.resume-analyzer {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.upload-section {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
+}
+
+.file-upload {
+  width: 48%;
+  padding: 20px;
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  text-align: center;
+  transition: border-color 0.3s;
+}
+
+.file-upload:hover {
+  border-color: #4a90e2;
+}
+
+.file-upload input[type="file"] {
+  display: none;
+}
+
+.file-label {
+  display: inline-block;
+  background-color: #4a90e2;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.3s;
+}
+
+.file-label:hover {
+  background-color: #2a70c2;
+}
+
+.file-name {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #666;
+  word-break: break-all;
+}
+
+.analyze-button {
+  width: 100%;
+  padding: 12px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.analyze-button:hover:not(:disabled) {
+  background-color: #3d8b40;
+}
+
+.analyze-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: #e74c3c;
+  margin: 15px 0;
+  padding: 10px;
+  background-color: #fdecea;
+  border-radius: 4px;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 30px 0;
+}
+
+.spinner {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #4a90e2;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.results {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.score-card {
+  margin-bottom: 20px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 20px;
+  background-color: #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress {
+  height: 100%;
+  background-color: #4caf50;
+  border-radius: 10px;
+}
+
+.keyword-matches, .recommendations {
+  margin-top: 20px;
+}
+
+.keyword-matches ul, .recommendations ul {
+  padding-left: 20px;
+}
+
+.keyword-matches li, .recommendations li {
+  margin-bottom: 8px;
+}
+
+@media (max-width: 600px) {
+  .upload-section {
+    flex-direction: column;
+  }
+  
+  .file-upload {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+}
+
+.tabs {
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.tab {
+  padding: 10px 20px;
+  background-color: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  color: #666;
+  transition: all 0.3s;
+}
+
+.tab:hover {
+  color: #4a90e2;
+}
+
+.tab.active {
+  color: #4a90e2;
+  border-bottom: 2px solid #4a90e2;
+}
+
+.tab-content {
+  padding: 10px 0;
+}
+
+.cover-letter-content, .resume-suggestions-content {
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  white-space: pre-line;
+  line-height: 1.6;
+}
+
+.copy-button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.copy-button:hover {
+  background-color: #2a70c2;
+}
+
+.score-section {
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.score-section:last-child {
+  border-bottom: none;
+}
+
+.feedback {
+  margin-top: 10px;
+  line-height: 1.6;
+}
+
+/* Resume Suggestions Formatting */
+.resume-suggestions-content {
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.suggestion-section {
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.suggestion-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.suggestion-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #4a90e2;
+  margin-bottom: 15px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e5f0ff;
+}
+
+.suggestion-section-content {
+  padding-left: 10px;
+}
+
+.suggestion-bullet, .suggestion-sub-bullet {
+  display: flex;
+  margin-bottom: 10px;
+  align-items: baseline;
+}
+
+.suggestion-bullet .bullet-point {
+  color: #4a90e2;
+  font-size: 18px;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.suggestion-sub-bullet {
+  padding-left: 25px;
+  margin-bottom: 8px;
+}
+
+.suggestion-sub-bullet .bullet-point {
+  color: #7eb0ef;
+  font-size: 14px;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.suggestion-paragraph {
+  margin-bottom: 12px;
+  line-height: 1.6;
+  color: #444;
+}
+
+/* Highlight key terms in suggestions */
+.suggestion-section-content strong, 
+.suggestion-section-content b {
+  color: #2a70c2;
+  font-weight: 600;
+}
+
+/* Resume Suggestions and Skill Development Formatting */
+.resume-suggestions-content, .skill-development-content {
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Styling for skill development */
+.skill-development-content .suggestion-section-title {
+  color: #2e7d32; /* Green color for skill development */
+}
+
+.skill-development-content .bullet-point {
+  color: #2e7d32;
+}
+
+.skill-development-content .suggestion-bullet .bullet-point {
+  color: #2e7d32;
+}
+
+.skill-development-content .suggestion-sub-bullet .bullet-point {
+  color: #66bb6a;
+}
+
+/* Highlight skill importance */
+.skill-importance-high {
+  color: #d32f2f !important;
+  font-weight: 700 !important;
+  background-color: rgba(211, 47, 47, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  margin: 0 4px;
+}
+
+.skill-importance-medium {
+  color: #ff9800 !important;
+  font-weight: 600 !important;
+  background-color: rgba(255, 152, 0, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  margin: 0 4px;
+}
+
+.skill-importance-low {
+  color: #2196f3 !important;
+  font-weight: 500 !important;
+  background-color: rgba(33, 150, 243, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  margin: 0 4px;
+}
+
+/* Skill names and resources styling */
+.skill-name {
+  color: #333;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.resource-name {
+  color: #673ab7;
+  font-style: italic;
+}
+
+.recommendation-link {
+  color: #1976d2;
+  text-decoration: none;
+  border-bottom: 1px dotted #1976d2;
+}
+
+.recommendation-link:hover {
+  color: #0d47a1;
+  border-bottom: 1px solid #0d47a1;
+}
+
+/* Section-specific styling */
+.suggestion-section[data-section="Skills Alignment"] .suggestion-section-title {
+  color: #2196f3; /* Blue */
+}
+
+.suggestion-section[data-section="Experience Reframing"] .suggestion-section-title {
+  color: #673ab7; /* Purple */
+}
+
+.suggestion-section[data-section="Content Organization"] .suggestion-section-title {
+  color: #ff9800; /* Orange */
+}
+
+.suggestion-section[data-section="Key Terminology"] .suggestion-section-title {
+  color: #4caf50; /* Green */
+}
+
+.suggestion-section[data-section="Format and Presentation"] .suggestion-section-title {
+  color: #e91e63; /* Pink */
+}
+
+/* Skill development section colors */
+.suggestion-section[data-section="Skill Gaps Analysis"] .suggestion-section-title {
+  color: #f44336; /* Red */
+}
+
+.suggestion-section[data-section="Learning Resources"] .suggestion-section-title {
+  color: #673ab7; /* Purple */
+}
+
+.suggestion-section[data-section="Practical Experience"] .suggestion-section-title {
+  color: #4caf50; /* Green */
+}
+
+.suggestion-section[data-section="Timeline"] .suggestion-section-title {
+  color: #ff9800; /* Orange */
+}
+
+.suggestion-section[data-section="Demonstrating Progress"] .suggestion-section-title {
+  color: #2196f3; /* Blue */
+} 

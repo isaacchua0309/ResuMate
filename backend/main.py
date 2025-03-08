@@ -1,4 +1,5 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 import os
 import re
 from openai import OpenAI
@@ -23,6 +24,15 @@ client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY'))
 nlp = spacy.load("en_core_web_sm")
 
 app = FastAPI()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins in development
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all methods
+    allow_headers=["*"],  # Allow all headers
+)
 
 def extract_text_from_pdf(pdf_bytes):
     try:
@@ -135,41 +145,199 @@ def generate_scores_and_feedback(resume_text: str, job_description_text: str):
 
     return scores_and_feedback
 
+def generate_ideal_resume(resume_text: str, job_description_text: str):
+    # Create a prompt to ask ChatGPT to generate an ideal resume with strictly structured output
+    prompt = f"""
+    I need help enhancing a resume to better match a job description.
 
+    Here is the original resume:
+    {resume_text}
 
+    Here is the job description:
+    {job_description_text}
 
+    Please provide me with specific, actionable recommendations to improve this resume for this job.
+    You MUST follow this EXACT structured format in your response:
+
+    ## Skills Alignment
+    • [Specific skill from job description 1]
+    • [Specific skill from job description 2]
+    • [Additional skills to highlight or add]
+
+    ## Experience Reframing
+    • [Suggested improvement for experience bullet point 1]
+    • [Suggested improvement for experience bullet point 2]
+    • [Ways to better quantify achievements]
+
+    ## Content Organization
+    • [Recommendation for section reorganization 1]
+    • [Recommendation for section reorganization 2]
+    • [Sections to emphasize or de-emphasize]
+
+    ## Key Terminology
+    • [Industry term 1 from job description to include]
+    • [Industry term 2 from job description to include]
+    • [Buzzwords that should be incorporated]
+
+    ## Format and Presentation
+    • [Suggestion for layout improvement 1]
+    • [Suggestion for readability improvement 1]
+    • [Visual enhancement recommendation]
+
+    For each recommendation, provide specific, concrete examples and clear, actionable advice.
+    Each bullet point should be a complete thought and recommendation.
+    Always begin each section with the exact heading as shown above (e.g., "## Skills Alignment").
+    """
+
+    # Make the ChatGPT API call to generate the ideal resume
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are a professional resume writer with expertise in optimizing resumes for specific job descriptions. You MUST format your response with the exact section headings specified and use bullet points for all recommendations."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=1500
+    )
+
+    # Parse the response from ChatGPT
+    result = response.choices[0].message.content.strip()
+    return result
+
+def generate_skill_development_plan(resume_text: str, job_description_text: str):
+    # Create a prompt to generate skill development suggestions with strictly structured output
+    prompt = f"""
+    Based on the following resume and job description, provide a detailed skill development plan to help the candidate become more competitive for this position.
+
+    Resume:
+    {resume_text}
+
+    Job Description:
+    {job_description_text}
+
+    Please create a structured skill development plan using this EXACT format with the specified section headers:
+
+    ## Skill Gaps Analysis
+    • [Skill 1]: (High) - [Brief description of gap]
+    • [Skill 2]: (Medium) - [Brief description of gap]
+    • [Skill 3]: (Low) - [Brief description of gap]
+    
+    ## Learning Resources
+    • For [Skill 1]: [Specific course/certification name] on [Platform] - [Brief description]
+    • For [Skill 2]: [Book/resource title] - [Brief description]
+    • For [Skill 3]: [Learning resource] - [Brief description]
+    
+    ## Practical Experience
+    • Project 1: [Descriptive project name] - [Brief description and skills addressed]
+    • Project 2: [Descriptive project name] - [Brief description and skills addressed]
+    • Activity: [Specific activity] - [Brief description and skills addressed]
+    
+    ## Timeline
+    • Short-term (1-3 months): [Skills to focus on first with specific actions]
+    • Medium-term (3-6 months): [Skills to develop next with specific actions]
+    • Long-term (6+ months): [Skills that require more time with specific actions]
+    
+    ## Demonstrating Progress
+    • Resume Updates: [Specific suggestions for resume modifications]
+    • Portfolio Additions: [Specific items to add to portfolio]
+    • Interview Talking Points: [Key points to emphasize during interviews]
+
+    Always use bullet points for each recommendation.
+    Always begin each section with the exact heading format shown above (e.g., "## Skill Gaps Analysis").
+    For skills in the Skill Gaps Analysis section, always include priority level as (High), (Medium), or (Low).
+    """
+
+    # Make the ChatGPT API call
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are a career development coach specializing in skill gap analysis and professional development planning. You MUST format your response with the exact section headings specified and use bullet points for all recommendations."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=1500
+    )
+
+    # Parse the response from ChatGPT
+    result = response.choices[0].message.content.strip()
+    return result
 
 @app.post("/analyze_resume/")
 async def analyze_resume(resume_file: UploadFile = File(...), job_description_file: UploadFile = File(...)):
-    if not resume_file or not job_description_file:
-        raise HTTPException(status_code=400, detail="Both resume and job description must be uploaded.")
+    try:
+        if not resume_file or not job_description_file:
+            raise HTTPException(status_code=400, detail="Both resume and job description must be uploaded.")
 
-    resume_extension = resume_file.filename.split(".")[-1].lower()
-    job_description_extension = job_description_file.filename.split(".")[-1].lower()
+        print(f"Processing files: {resume_file.filename} and {job_description_file.filename}")
+        
+        resume_extension = resume_file.filename.split(".")[-1].lower()
+        job_description_extension = job_description_file.filename.split(".")[-1].lower()
 
-    resume_bytes = await resume_file.read()
-    job_description_bytes = await job_description_file.read()
+        resume_bytes = await resume_file.read()
+        job_description_bytes = await job_description_file.read()
 
-    if resume_extension == "pdf":
-        resume_text = extract_text_from_pdf(resume_bytes)
-    elif resume_extension == "docx":
-        resume_text = extract_text_from_word(resume_bytes)
-    else:
-        raise HTTPException(status_code=400, detail="Unsupported file type for resume. Only PDF and Word (.docx) are allowed.")
+        if resume_extension == "pdf":
+            resume_text = extract_text_from_pdf(resume_bytes)
+        elif resume_extension == "docx":
+            resume_text = extract_text_from_word(resume_bytes)
+        else:
+            raise HTTPException(status_code=400, detail="Unsupported file type for resume. Only PDF and Word (.docx) are allowed.")
 
-    if job_description_extension == "pdf":
-        job_description_text = extract_text_from_pdf(job_description_bytes)
-    elif job_description_extension == "docx":
-        job_description_text = extract_text_from_word(job_description_bytes)
-    else:
-        raise HTTPException(status_code=400, detail="Unsupported file type for job description. Only PDF and Word (.docx) are allowed.")
+        if job_description_extension == "pdf":
+            job_description_text = extract_text_from_pdf(job_description_bytes)
+        elif job_description_extension == "docx":
+            job_description_text = extract_text_from_word(job_description_bytes)
+        else:
+            raise HTTPException(status_code=400, detail="Unsupported file type for job description. Only PDF and Word (.docx) are allowed.")
 
-    # Get ChatGPT-generated scores and feedback
-    scores_and_feedback = generate_scores_and_feedback(resume_text, job_description_text)
+        # Get ChatGPT-generated scores and feedback
+        scores_and_feedback = generate_scores_and_feedback(resume_text, job_description_text)
+        
+        # Generate cover letter
+        cover_letter_prompt = f"""
+        Based on the following resume and job description, generate a professional cover letter addressed to the hiring manager for the position. 
 
-    return {
-        "scores_and_feedback": scores_and_feedback
-    }
+        Resume:
+        {resume_text}
+
+        Job Description:
+        {job_description_text}
+
+        The cover letter should:
+        - Be professional, concise, and respectful.
+        - Mention key qualifications from the resume that align with the job requirements.
+        - Express enthusiasm for the position and the company.
+        - Be addressed to the hiring manager.
+
+        Please format the cover letter appropriately with a greeting, introduction, body, and conclusion.
+        """
+
+        cover_letter_response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a professional cover letter generator."},
+                {"role": "user", "content": cover_letter_prompt}
+            ],
+            max_tokens=1000
+        )
+        
+        cover_letter = cover_letter_response.choices[0].message.content.strip()
+        
+        # Generate ideal resume recommendations
+        ideal_resume = generate_ideal_resume(resume_text, job_description_text)
+        
+        # Generate skill development suggestions
+        skill_development = generate_skill_development_plan(resume_text, job_description_text)
+
+        return {
+            "scores_and_feedback": scores_and_feedback,
+            "cover_letter": cover_letter,
+            "ideal_resume": ideal_resume,
+            "skill_development": skill_development
+        }
+    except Exception as e:
+        import traceback
+        print(f"Error in analyze_resume: {str(e)}")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
 
 @app.post("/generate_cover_letter/")
 async def generate_cover_letter(resume_file: UploadFile = File(...), job_description_file: UploadFile = File(...)):
