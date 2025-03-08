@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './ResumeAnalyzer.css';
 
 const ResumeAnalyzer = () => {
@@ -8,6 +8,22 @@ const ResumeAnalyzer = () => {
   const [error, setError] = useState(null);
   const [results, setResults] = useState(null);
   const [activeTab, setActiveTab] = useState('analysis');
+  const [copied, setCopied] = useState(false);
+  const [analysisComplete, setAnalysisComplete] = useState(false);
+
+  useEffect(() => {
+    if (results) {
+      setAnalysisComplete(true);
+      // Scroll to results after a short delay
+      const timer = setTimeout(() => {
+        document.querySelector('.results')?.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [results]);
 
   const handleResumeChange = (e) => {
     const file = e.target.files[0];
@@ -46,6 +62,7 @@ const ResumeAnalyzer = () => {
     setLoading(true);
     setError(null);
     setResults(null);
+    setAnalysisComplete(false);
 
     const formData = new FormData();
     formData.append('resume_file', resumeFile);
@@ -118,7 +135,10 @@ const ResumeAnalyzer = () => {
             className="suggestion-section"
             data-section={section.title}
           >
-            <h3 className="suggestion-section-title">{section.title}</h3>
+            <h3 className="suggestion-section-title">
+              {getIconForSection(section.title)}
+              {section.title}
+            </h3>
             <div className="suggestion-section-content">
               {section.items.map((item, itemIndex) => {
                 if (item.type === 'bullet') {
@@ -144,6 +164,27 @@ const ResumeAnalyzer = () => {
         ))}
       </>
     );
+  };
+
+  // Get icon for section title
+  const getIconForSection = (title) => {
+    const lowerTitle = title.toLowerCase();
+    
+    if (lowerTitle.includes('skill')) {
+      return <span className="section-icon">💡</span>;
+    } else if (lowerTitle.includes('experience')) {
+      return <span className="section-icon">📝</span>;
+    } else if (lowerTitle.includes('format')) {
+      return <span className="section-icon">✨</span>;
+    } else if (lowerTitle.includes('resources')) {
+      return <span className="section-icon">📚</span>;
+    } else if (lowerTitle.includes('action') || lowerTitle.includes('plan')) {
+      return <span className="section-icon">🎯</span>;
+    } else if (lowerTitle.includes('priority')) {
+      return <span className="section-icon">⭐</span>;
+    }
+    
+    return <span className="section-icon">📋</span>;
   };
 
   // Helper function to extract bullet points from a section
@@ -299,7 +340,10 @@ const ResumeAnalyzer = () => {
             className="suggestion-section"
             data-section={section.title}
           >
-            <h3 className="suggestion-section-title">{section.title}</h3>
+            <h3 className="suggestion-section-title">
+              {getIconForSection(section.title)}
+              {section.title}
+            </h3>
             <div className="suggestion-section-content">
               {section.items.map((item, itemIndex) => {
                 if (item.type === 'bullet') {
@@ -359,54 +403,85 @@ const ResumeAnalyzer = () => {
     return formattedText;
   };
 
+  // Function to handle copy to clipboard
+  const handleCopy = (text, type) => {
+    navigator.clipboard.writeText(text);
+    setCopied(type);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  // Format scores to display as a percentage
+  const formatScore = (score) => {
+    return Math.round((score / 10) * 100);
+  };
+
   return (
     <div className="resume-analyzer">
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className={analysisComplete ? 'form-minimized' : ''}>
         <div className="upload-section">
           <div className="file-upload">
-            <h3>Upload Your Resume</h3>
+            <h3>{analysisComplete ? 'Resume' : 'Upload Your Resume'}</h3>
+            <div className="upload-icon">📄</div>
             <input 
               type="file" 
               id="resume" 
               onChange={handleResumeChange}
               accept=".pdf,.doc,.docx"
             />
-            <label htmlFor="resume" className="file-label">
-              {resumeFile ? resumeFile.name : 'Choose File'}
-            </label>
             {resumeFile && <p className="file-name">{resumeFile.name}</p>}
+            <label htmlFor="resume" className="file-label">
+              {resumeFile ? 'Change File' : 'Choose File'}
+            </label>
           </div>
 
           <div className="file-upload">
-            <h3>Upload Job Description</h3>
+            <h3>{analysisComplete ? 'Job Description' : 'Upload Job Description'}</h3>
+            <div className="upload-icon">📋</div>
             <input 
               type="file" 
               id="jobDesc" 
               onChange={handleJobDescChange}
               accept=".pdf,.doc,.docx"
             />
-            <label htmlFor="jobDesc" className="file-label">
-              {jobDescFile ? jobDescFile.name : 'Choose File'}
-            </label>
             {jobDescFile && <p className="file-name">{jobDescFile.name}</p>}
+            <label htmlFor="jobDesc" className="file-label">
+              {jobDescFile ? 'Change File' : 'Choose File'}
+            </label>
           </div>
+          
+          {analysisComplete && (
+            <button 
+              type="submit" 
+              className="analyze-button"
+              disabled={loading || !resumeFile || !jobDescFile}
+            >
+              {loading ? 'Analyzing...' : 'Re-Analyze'}
+            </button>
+          )}
         </div>
 
-        {error && <div className="error-message">{error}</div>}
+        {error && (
+          <div className="error-message">
+            <span className="error-icon">⚠️</span> {error}
+          </div>
+        )}
 
-        <button 
-          type="submit" 
-          className="analyze-button"
-          disabled={loading || !resumeFile || !jobDescFile}
-        >
-          {loading ? 'Analyzing...' : 'Analyze Resume'}
-        </button>
+        {!analysisComplete && (
+          <button 
+            type="submit" 
+            className="analyze-button"
+            disabled={loading || !resumeFile || !jobDescFile}
+          >
+            {loading ? 'Analyzing Resume...' : 'Analyze My Resume'}
+          </button>
+        )}
       </form>
 
       {loading && (
         <div className="loading">
           <div className="spinner"></div>
           <p>Analyzing your resume against the job description...</p>
+          <p className="loading-tip">This may take 15-30 seconds</p>
         </div>
       )}
 
@@ -417,103 +492,92 @@ const ResumeAnalyzer = () => {
               className={`tab ${activeTab === 'analysis' ? 'active' : ''}`}
               onClick={() => setActiveTab('analysis')}
             >
-              Analysis
+              <span className="tab-icon">📊</span> Analysis
             </button>
             <button 
               className={`tab ${activeTab === 'cover-letter' ? 'active' : ''}`}
               onClick={() => setActiveTab('cover-letter')}
             >
-              Cover Letter
+              <span className="tab-icon">📝</span> Cover Letter
             </button>
             <button 
               className={`tab ${activeTab === 'resume-suggestions' ? 'active' : ''}`}
               onClick={() => setActiveTab('resume-suggestions')}
             >
-              Resume Suggestions
+              <span className="tab-icon">🔍</span> Resume Suggestions
             </button>
             <button 
               className={`tab ${activeTab === 'skill-development' ? 'active' : ''}`}
               onClick={() => setActiveTab('skill-development')}
             >
-              Skill Development
+              <span className="tab-icon">📈</span> Skill Development
             </button>
           </div>
 
           <div className="tab-content">
             {activeTab === 'analysis' && (
-              <div>
-                <h2>Analysis Results</h2>
-                {results.scores_and_feedback && (
-                  <div>
-                    {Object.entries(results.scores_and_feedback).map(([category, data]) => (
-                      <div key={category} className="score-section">
-                        <h3>{category}: {data.score}/10</h3>
-                        <div className="progress-bar">
-                          <div 
-                            className="progress" 
-                            style={{ width: `${data.score * 10}%` }}
-                          ></div>
-                        </div>
-                        <p className="feedback">{data.feedback}</p>
+              <div className="analysis">
+                <h2><span className="section-icon">📊</span> Resume Analysis</h2>
+                
+                <div className="score-overview">
+                  {results.scores_and_feedback && Object.entries(results.scores_and_feedback).map(([category, data]) => (
+                    <div key={category} className="score-card">
+                      <h3>{category}</h3>
+                      <div className="score-value">{data.score}/10</div>
+                      <div className="progress-bar">
+                        <div 
+                          className="progress" 
+                          style={{width: `${formatScore(data.score)}%`}}
+                        ></div>
                       </div>
-                    ))}
-                  </div>
-                )}
+                      <div className="feedback">{data.feedback}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
             {activeTab === 'cover-letter' && (
               <div className="cover-letter">
-                <h2>Generated Cover Letter</h2>
+                <h2><span className="section-icon">📝</span> Generated Cover Letter</h2>
                 <div className="cover-letter-content">
-                  {results.cover_letter.split('\n').map((paragraph, index) => (
-                    <p key={index}>{paragraph}</p>
-                  ))}
+                  {results.cover_letter}
                 </div>
                 <button 
                   className="copy-button"
-                  onClick={() => {
-                    navigator.clipboard.writeText(results.cover_letter);
-                    alert('Cover letter copied to clipboard!');
-                  }}
+                  onClick={() => handleCopy(results.cover_letter, 'cover-letter')}
                 >
-                  Copy to Clipboard
+                  {copied === 'cover-letter' ? '✓ Copied!' : 'Copy to Clipboard'}
                 </button>
               </div>
             )}
 
             {activeTab === 'resume-suggestions' && (
               <div className="resume-suggestions">
-                <h2>Resume Improvement Suggestions</h2>
+                <h2><span className="section-icon">🔍</span> Resume Improvement Suggestions</h2>
                 <div className="resume-suggestions-content">
                   {formatResumeSuggestions(results.ideal_resume)}
                 </div>
                 <button 
                   className="copy-button"
-                  onClick={() => {
-                    navigator.clipboard.writeText(results.ideal_resume);
-                    alert('Resume suggestions copied to clipboard!');
-                  }}
+                  onClick={() => handleCopy(results.ideal_resume, 'resume-suggestions')}
                 >
-                  Copy to Clipboard
+                  {copied === 'resume-suggestions' ? '✓ Copied!' : 'Copy to Clipboard'}
                 </button>
               </div>
             )}
 
             {activeTab === 'skill-development' && (
               <div className="skill-development">
-                <h2>Skill Development Plan</h2>
+                <h2><span className="section-icon">📈</span> Skill Development Plan</h2>
                 <div className="skill-development-content">
                   {formatResumeSuggestions(results.skill_development)}
                 </div>
                 <button 
                   className="copy-button"
-                  onClick={() => {
-                    navigator.clipboard.writeText(results.skill_development);
-                    alert('Skill development plan copied to clipboard!');
-                  }}
+                  onClick={() => handleCopy(results.skill_development, 'skill-development')}
                 >
-                  Copy to Clipboard
+                  {copied === 'skill-development' ? '✓ Copied!' : 'Copy to Clipboard'}
                 </button>
               </div>
             )}
