@@ -462,11 +462,34 @@ const ResumeAnalyzer = () => {
     "Finalizing results..."
   ];
 
+  // Add click handler for the entire file upload area
+  const handleFileUploadClick = (inputId) => {
+    document.getElementById(inputId).click();
+  };
+
+  // Add function to truncate filename for display
+  const formatFileName = (fileName) => {
+    if (!fileName) return "";
+    
+    // Keep full name in tooltip, but truncate display if needed
+    if (fileName.length > 25) {
+      const extension = fileName.split('.').pop();
+      const nameWithoutExt = fileName.substring(0, fileName.lastIndexOf('.'));
+      const truncatedName = nameWithoutExt.substring(0, 20) + '...';
+      return `${truncatedName}.${extension}`;
+    }
+    
+    return fileName;
+  };
+
   return (
     <div className="resume-analyzer">
       <form onSubmit={handleSubmit} className={analysisComplete ? 'form-minimized' : ''}>
         <div className="upload-section">
-          <div className={`file-upload ${resumeFile ? 'file-selected' : ''}`}>
+          <div 
+            className={`file-upload ${resumeFile ? 'file-selected' : ''}`}
+            onClick={() => handleFileUploadClick('resume')}
+          >
             <h3>{analysisComplete ? 'Resume' : 'Upload Your Resume'}</h3>
             <div className="upload-icon">📄</div>
             <input 
@@ -478,17 +501,22 @@ const ResumeAnalyzer = () => {
             />
             <div className="file-name-container" aria-live="polite">
               {resumeFile ? (
-                <p className="file-name" title={resumeFile.name}>{resumeFile.name}</p>
+                <p className="file-name" title={resumeFile.name}>
+                  {formatFileName(resumeFile.name)}
+                </p>
               ) : (
                 <p className="file-placeholder">No file selected</p>
               )}
             </div>
-            <label htmlFor="resume" className="file-label">
+            <label htmlFor="resume" className="file-label" onClick={(e) => e.stopPropagation()}>
               {resumeFile ? 'Change File' : 'Choose File'}
             </label>
           </div>
 
-          <div className={`file-upload ${jobDescFile ? 'file-selected' : ''}`}>
+          <div 
+            className={`file-upload ${jobDescFile ? 'file-selected' : ''}`}
+            onClick={() => handleFileUploadClick('jobDesc')}
+          >
             <h3>{analysisComplete ? 'Job Description' : 'Upload Job Description'}</h3>
             <div className="upload-icon">📋</div>
             <input 
@@ -500,12 +528,14 @@ const ResumeAnalyzer = () => {
             />
             <div className="file-name-container" aria-live="polite">
               {jobDescFile ? (
-                <p className="file-name" title={jobDescFile.name}>{jobDescFile.name}</p>
+                <p className="file-name" title={jobDescFile.name}>
+                  {formatFileName(jobDescFile.name)}
+                </p>
               ) : (
                 <p className="file-placeholder">No file selected</p>
               )}
             </div>
-            <label htmlFor="jobDesc" className="file-label">
+            <label htmlFor="jobDesc" className="file-label" onClick={(e) => e.stopPropagation()}>
               {jobDescFile ? 'Change File' : 'Choose File'}
             </label>
           </div>

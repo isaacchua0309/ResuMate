@@ -2,6 +2,9 @@
   max-width: 900px;
   margin: 0 auto;
   padding: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .upload-section {
@@ -13,7 +16,9 @@
 
 .file-upload {
   width: 48%;
-  padding: 0px;
+  min-height: 350px;
+  max-height: 350px;
+  padding: 30px 20px;
   border: 2px dashed var(--border-color);
   border-radius: var(--border-radius);
   text-align: center;
@@ -24,9 +29,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 300px;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   cursor: pointer;
 }
 
@@ -53,8 +57,8 @@
 }
 
 .file-upload h3 {
-  margin-top: 0;
-  margin-bottom: 15px;
+  margin-top: 15px;
+  margin-bottom: 0px;
   color: var(--primary-color);
   font-weight: 600;
   width: 100%;
@@ -108,24 +112,41 @@
   margin: 10px 0;
   transition: all 0.3s ease;
   overflow: visible;
+  padding: 0 15px;
 }
 
 .file-name {
   font-size: 14px;
   color: var(--text-color);
-  word-break: break-word;
+  word-break: normal;
   background-color: rgba(67, 97, 238, 0.1);
   padding: 10px 15px;
   border-radius: var(--border-radius);
-  max-width: 90%;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: inline-block;
+  white-space: nowrap;
+  display: block;
   transition: all 0.3s ease;
   border-left: 3px solid var(--primary-color);
   box-shadow: var(--shadow-sm);
   font-weight: 500;
   position: relative;
+  text-align: left;
+  width: 100%;
+}
+
+/* Improved hover effect for file names */
+.file-name:hover {
+  overflow: visible;
+  white-space: normal;
+  z-index: 10;
+  word-break: break-word;
+  position: absolute;
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  background-color: rgba(67, 97, 238, 0.15);
+  cursor: default;
 }
 
 /* Add a visual cue that enhances the file name visibility */
@@ -347,16 +368,25 @@
 @media (max-width: 768px) {
   .upload-section {
     flex-direction: column;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
   
   .file-upload {
     width: 100%;
+    min-height: 300px;
+    max-height: 350px;
     margin-bottom: 20px;
-    min-height: 250px;
+    max-width: 100%;
+    box-sizing: border-box;
   }
   
   .tabs {
     overflow-x: auto;
+    max-width: 100%;
+    box-sizing: border-box;
+    -webkit-overflow-scrolling: touch;
   }
   
   .cover-letter-content, 
@@ -365,6 +395,9 @@
   .interview-questions-content {
     padding: 20px 15px;
     font-size: 14px;
+    max-width: 100%;
+    box-sizing: border-box;
+    word-break: break-word;
   }
   
   .interview-questions-content p:nth-of-type(odd) {
@@ -383,9 +416,18 @@
     font-size: 1.1rem;
   }
   
+  .form-minimized {
+    padding: 15px;
+    margin-bottom: 20px;
+    overflow-x: hidden;
+  }
+  
   .form-minimized .upload-section {
     grid-template-columns: 1fr;
     align-items: stretch;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
   
   .form-minimized .file-upload {
@@ -394,6 +436,7 @@
     flex-wrap: nowrap;
     overflow: hidden;
     align-items: center;
+    box-sizing: border-box;
   }
   
   .form-minimized .file-name-container {
@@ -403,6 +446,15 @@
   .form-minimized .file-name {
     max-width: 100%;
     font-size: 0.7rem;
+    box-sizing: border-box;
+  }
+  
+  .form-minimized .file-name:hover {
+    position: static;
+    max-width: 100%;
+    width: 100%;
+    white-space: normal;
+    word-break: break-all;
   }
   
   .form-minimized .file-label {
@@ -419,6 +471,38 @@
   .form-minimized-controls {
     flex-direction: column;
     gap: 10px;
+  }
+  
+  .file-name-container {
+    padding: 0 10px;
+  }
+  
+  .file-name {
+    font-size: 13px;
+    padding: 8px 12px;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .file-name:hover {
+    position: relative;
+    max-width: 100%;
+  }
+  
+  .tab-content {
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 0;
+  }
+  
+  /* Make sure everything stays contained */
+  .form-minimized, 
+  .results,
+  .loading {
+    max-width: 100vw;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
 }
 
@@ -844,11 +928,11 @@ h2 {
   content: "✓ File selected";
   position: absolute;
   top: 10px;
-  right: 10px;
+  right: 25px;
   background-color: rgba(67, 97, 238, 0.1);
   color: var(--primary-dark);
   font-size: 12px;
-  padding: 4px 8px;
+  padding: 0px 0px;
   border-radius: 4px;
   font-weight: 500;
 }
@@ -886,7 +970,7 @@ h2 {
   margin-bottom: 8px;
 }
 
-/* Update the form-minimized styling for better layout */
+/* Fix for horizontal scrolling in minimized form */
 .form-minimized {
   max-height: none;
   overflow: visible;
@@ -897,11 +981,15 @@ h2 {
   background-color: rgba(67, 97, 238, 0.03);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-sm);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .form-minimized .upload-section {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 20px;
   align-items: stretch;
   justify-content: space-between;
@@ -909,69 +997,206 @@ h2 {
 }
 
 .form-minimized .file-upload {
-  flex: 1 1 300px;
-  min-width: 300px;
-  padding: 15px;
-  flex-direction: row;
+  flex: 1;
+  width: 48%;
+  min-height: 250px;
+  max-height: 250px;
+  padding: 20px;
+  flex-direction: column;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  text-align: left;
-  gap: 15px;
-  flex-wrap: nowrap;
-  border: 1px solid var(--border-color);
+  justify-content: center;
+  text-align: center;
+  gap: 10px;
+  border: 2px dashed var(--border-color);
   margin-bottom: 0;
-  min-height: unset;
   border-radius: var(--border-radius);
   background-color: var(--card-color);
+  overflow: visible;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.form-minimized .file-upload:hover {
+  border-color: var(--primary-light);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.form-minimized .file-upload::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, var(--primary-light) 0%, var(--primary-color) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.form-minimized .file-upload:hover::before {
+  opacity: 1;
 }
 
 .form-minimized .file-name-container {
-  flex: 1;
-  min-height: unset;
-  margin: 0;
-  padding: 0;
-  justify-content: flex-start;
-  overflow: hidden;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 10px 0;
+  transition: all 0.3s ease;
+  overflow: visible;
+  padding: 0 15px;
+  position: relative;
+  max-width: 100%;
+  z-index: 1;
 }
 
 .form-minimized .file-name {
-  padding: 6px 10px;
-  margin: 0;
+  font-size: 14px;
+  color: var(--text-color);
+  word-break: normal;
+  background-color: rgba(67, 97, 238, 0.1);
+  padding: 10px 15px;
+  border-radius: var(--border-radius);
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 100%;
-  font-size: 0.85rem;
+  display: block;
+  transition: all 0.3s ease;
+  border-left: 3px solid var(--primary-color);
+  box-shadow: var(--shadow-sm);
+  font-weight: 500;
+  position: relative;
+  text-align: left;
+  width: 100%;
+}
+
+.form-minimized .file-name:hover {
+  overflow: visible;
+  white-space: normal;
+  z-index: 10;
+  word-break: break-word;
+  position: absolute;
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  background-color: rgba(67, 97, 238, 0.15);
+  cursor: default;
 }
 
 .form-minimized .file-label {
-  margin: 0;
-  padding: 6px 12px;
-  font-size: 0.85rem;
-  white-space: nowrap;
-  min-width: unset;
-  flex: 0 0 auto;
-}
-
-.form-minimized .analyze-button {
-  margin-left: auto;
-  padding: 10px 20px;
-  font-size: 0.95rem;
-  white-space: nowrap;
-  align-self: center;
-  width: auto;
+  display: inline-block;
+  background-color: var(--primary-color);
+  color: white;
+  padding: 8px 20px;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  margin-top: 0px;
+  transition: all 0.3s ease;
+  font-weight: 500;
   box-shadow: var(--shadow-sm);
-  flex: 0 0 auto;
+  min-width: 120px;
+  text-align: center;
 }
 
-/* Create a collapsible form layout */
-.form-minimized-controls {
+.form-minimized .file-label:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.form-minimized .upload-icon {
+  margin: 0 0 10px 0;
+  font-size: 2.5rem;
+  width: 60px;
+  height: 60px;
+  animation: float 4s ease-in-out infinite;
+  flex: 0 0 auto;
   display: flex;
-  width: 100%;
-  justify-content: space-between;
   align-items: center;
-  margin-top: 15px;
+  justify-content: center;
+  background-color: rgba(67, 97, 238, 0.08);
+  border-radius: 50%;
+  padding: 0;
+}
+
+.form-minimized h3 {
+  margin-top: 5px;
+  margin-bottom: 10px;
+  color: var(--primary-color);
+  font-weight: 600;
+  width: 100%;
+  position: relative;
+  display: inline-block;
+  font-size: 1.1rem;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.form-minimized h3::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -5px;
+  width: 50px;
+  height: 2px;
+  background-color: var(--primary-light);
+  opacity: 0.5;
+}
+
+/* Mobile optimizations for minimized form */
+@media (max-width: 768px) {
+  .form-minimized .upload-section {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .form-minimized .file-upload {
+    width: 100%;
+    min-height: 200px;
+    max-height: 200px;
+    padding: 15px;
+  }
+  
+  .form-minimized h3 {
+    font-size: 1rem;
+  }
+  
+  .form-minimized .file-name-container {
+    min-height: 40px;
+    margin: 8px 0;
+  }
+  
+  .form-minimized .file-name {
+    font-size: 0.9rem;
+    padding: 8px 12px;
+  }
+  
+  .form-minimized .file-label {
+    padding: 7px 15px;
+    font-size: 0.9rem;
+  }
+  
+  .form-minimized .analyze-button {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    width: 100%;
+    margin-top: 10px;
+  }
+  
+  .form-minimized .upload-icon {
+    font-size: 2rem;
+    width: 50px;
+    height: 50px;
+    margin-bottom: 8px;
+  }
 }
 
 /* Loading tip */
@@ -1127,9 +1352,9 @@ h2 {
 }
 
 [data-theme="dark"] .file-name {
-  background-color: rgba(76, 201, 240, 0.1);
-  color: var(--text-color);
-  box-shadow: var(--shadow-sm);
+  color: white;
+  background-color: rgba(76, 201, 240, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border-left-color: var(--primary-color);
 }
 
@@ -1428,6 +1653,8 @@ h2 {
   max-width: 100%;
   font-size: 0.85rem;
   background-color: rgba(67, 97, 238, 0.08);
+  font-weight: 500;
+  color: var(--text-color);
 }
 
 .form-minimized .file-name::before {
@@ -1444,6 +1671,8 @@ h2 {
   border-radius: var(--border-radius);
   border: 1px dashed var(--border-color);
   font-size: 14px;
+  width: 100%;
+  text-align: center;
 }
 
 [data-theme="dark"] .file-placeholder {
@@ -1455,4 +1684,90 @@ h2 {
 /* Make file upload area more interactive */
 .file-upload:active {
   transform: scale(0.99);
+}
+
+/* Ensure minimized file names are visible */
+[data-theme="dark"] .form-minimized .file-name {
+  background-color: rgba(76, 201, 240, 0.15);
+  color: white;
+}
+
+.form-minimized .analyze-button {
+  margin-left: auto;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  align-self: center;
+  width: auto;
+  box-shadow: var(--shadow-sm);
+  flex: 0 0 auto;
+}
+
+/* Create a collapsible form layout */
+.form-minimized-controls {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+}
+
+@media (max-width: 768px) {
+  .form-minimized .file-name:hover {
+    position: relative;
+    left: 0;
+  }
+}
+
+/* Add a zoom icon to indicate the filename can be expanded */
+.form-minimized .file-name::after {
+  content: "🔍";
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 10px;
+  opacity: 0.5;
+}
+
+/* Prevent horizontal overflow of content */
+body {
+  overflow-x: hidden;
+}
+
+.App {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+[data-theme="dark"] .form-minimized {
+  background-color: rgba(67, 97, 238, 0.05);
+  border-color: var(--border-dark);
+}
+
+[data-theme="dark"] .form-minimized .file-upload {
+  background-color: var(--card-dark);
+  border-color: var(--border-dark);
+}
+
+[data-theme="dark"] .form-minimized .file-upload:hover {
+  border-color: var(--primary-light);
+  background-color: rgba(67, 97, 238, 0.08);
+}
+
+[data-theme="dark"] .form-minimized .file-name {
+  background-color: rgba(67, 97, 238, 0.15);
+  color: var(--text-color-dark);
+}
+
+[data-theme="dark"] .form-minimized .file-name:hover {
+  background-color: rgba(67, 97, 238, 0.25);
+}
+
+[data-theme="dark"] .form-minimized h3 {
+  color: var(--primary-light);
+}
+
+[data-theme="dark"] .form-minimized .upload-icon {
+  background-color: rgba(67, 97, 238, 0.15);
 } 
