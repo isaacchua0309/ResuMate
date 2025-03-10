@@ -267,6 +267,7 @@ def generate_comprehensive_analysis(resume_text: str, job_description_text: str)
     - Cover letter
     - Resume suggestions
     - Skill development plan
+    - Interview questions and answers
     
     This function uses a structured format to ensure consistent responses that are easy to parse.
     """
@@ -334,9 +335,9 @@ def generate_comprehensive_analysis(resume_text: str, job_description_text: str)
     [/SECTION:PRIORITY_SKILLS]
     
     [SECTION:LEARNING_RESOURCES]
-    • [Resource 1]: [Description of specific course/certification/book]
-    • [Resource 2]: [Description of specific course/certification/book]
-    • [Resource 3]: [Description of specific course/certification/book]
+    • [Resource 1]: [Description of specific course/certification/book with link]
+    • [Resource 2]: [Description of specific course/certification/book with link]
+    • [Resource 3]: [Description of specific course/certification/book with link]
     [/SECTION:LEARNING_RESOURCES]
     
     [SECTION:ACTION_PLAN]
@@ -345,6 +346,42 @@ def generate_comprehensive_analysis(resume_text: str, job_description_text: str)
     • [Long-term action 3]: [6-month goal]
     [/SECTION:ACTION_PLAN]
     [/SECTION:SKILL_DEVELOPMENT]
+
+    [SECTION:INTERVIEW_QUESTIONS]
+    [SECTION:TECHNICAL_QUESTIONS]
+    1. [Technical question 1]
+    Ideal Answer: [Detailed answer that demonstrates expertise and experience relevant to both the resume and job description]
+    
+    2. [Technical question 2]
+    Ideal Answer: [Detailed answer that demonstrates expertise and experience relevant to both the resume and job description]
+    
+    3. [Technical question 3]
+    Ideal Answer: [Detailed answer that demonstrates expertise and experience relevant to both the resume and job description]
+    
+    4. [Technical question 4]
+    Ideal Answer: [Detailed answer that demonstrates expertise and experience relevant to both the resume and job description]
+    
+    5. [Technical question 5]
+    Ideal Answer: [Detailed answer that demonstrates expertise and experience relevant to both the resume and job description]
+    [/SECTION:TECHNICAL_QUESTIONS]
+
+    [SECTION:BEHAVIORAL_QUESTIONS]
+    1. [Behavioral question 1]
+    Ideal Answer: [Detailed answer using the STAR method (Situation, Task, Action, Result) that aligns with resume experience]
+    
+    2. [Behavioral question 2]
+    Ideal Answer: [Detailed answer using the STAR method (Situation, Task, Action, Result) that aligns with resume experience]
+    
+    3. [Behavioral question 3]
+    Ideal Answer: [Detailed answer using the STAR method (Situation, Task, Action, Result) that aligns with resume experience]
+    
+    4. [Behavioral question 4]
+    Ideal Answer: [Detailed answer using the STAR method (Situation, Task, Action, Result) that aligns with resume experience]
+    
+    5. [Behavioral question 5]
+    Ideal Answer: [Detailed answer using the STAR method (Situation, Task, Action, Result) that aligns with resume experience]
+    [/SECTION:BEHAVIORAL_QUESTIONS]
+    [/SECTION:INTERVIEW_QUESTIONS]
 
     YOU MUST MAINTAIN EXACTLY THE SECTION TAGS AND STRUCTURE SHOWN ABOVE. This is critical as your response will be parsed programmatically.
     """
@@ -356,7 +393,7 @@ def generate_comprehensive_analysis(resume_text: str, job_description_text: str)
             {"role": "system", "content": "You are an expert career advisor. You MUST follow the EXACT formatting instructions specified in the prompt, including all section tags and structure. Do not deviate from the requested format as the response will be parsed programmatically."},
             {"role": "user", "content": prompt}
         ],
-        max_tokens=6000  # Increased token limit to accommodate all sections
+        max_tokens=8000  # Increased token limit to accommodate all sections including interview questions
     )
 
     # Get the full response
@@ -369,6 +406,7 @@ def generate_comprehensive_analysis(resume_text: str, job_description_text: str)
         cover_letter = extract_section_by_tags(result, "[SECTION:COVER_LETTER]", "[/SECTION:COVER_LETTER]")
         resume_suggestions_raw = extract_section_by_tags(result, "[SECTION:RESUME_SUGGESTIONS]", "[/SECTION:RESUME_SUGGESTIONS]")
         skill_development_raw = extract_section_by_tags(result, "[SECTION:SKILL_DEVELOPMENT]", "[/SECTION:SKILL_DEVELOPMENT]")
+        interview_questions_raw = extract_section_by_tags(result, "[SECTION:INTERVIEW_QUESTIONS]", "[/SECTION:INTERVIEW_QUESTIONS]")
         
         # Parse scores and feedback from the tagged format
         scores_and_feedback = parse_scores_and_feedback_tagged(scores_section)
@@ -388,6 +426,12 @@ def generate_comprehensive_analysis(resume_text: str, job_description_text: str)
             "action_plan": extract_section_by_tags(skill_development_raw, "[SECTION:ACTION_PLAN]", "[/SECTION:ACTION_PLAN]")
         }
         
+        # Extract sub-sections from interview questions
+        interview_questions = {
+            "technical_questions": extract_section_by_tags(interview_questions_raw, "[SECTION:TECHNICAL_QUESTIONS]", "[/SECTION:TECHNICAL_QUESTIONS]"),
+            "behavioral_questions": extract_section_by_tags(interview_questions_raw, "[SECTION:BEHAVIORAL_QUESTIONS]", "[/SECTION:BEHAVIORAL_QUESTIONS]")
+        }
+        
         # Create a string representation of resume_suggestions for frontend compatibility
         resume_suggestions_str = "\n\n".join([
             f"## Skills to Highlight\n{resume_suggestions['skills_to_highlight']}",
@@ -403,13 +447,21 @@ def generate_comprehensive_analysis(resume_text: str, job_description_text: str)
             f"## Action Plan\n{skill_development['action_plan']}"
         ])
         
+        # Create a string representation of interview_questions for frontend compatibility
+        interview_questions_str = "\n\n".join([
+            f"## Technical Questions\n{interview_questions['technical_questions']}",
+            f"## Behavioral Questions\n{interview_questions['behavioral_questions']}"
+        ])
+        
         return {
             "scores_and_feedback": scores_and_feedback,
             "cover_letter": cover_letter,
             "ideal_resume": resume_suggestions_str,  # String format for frontend compatibility
             "skill_development": skill_development_str,  # String format for frontend compatibility
+            "interview_questions": interview_questions_str,  # String format for frontend compatibility
             "ideal_resume_structured": resume_suggestions,  # Keep structured format for future use
-            "skill_development_structured": skill_development  # Keep structured format for future use
+            "skill_development_structured": skill_development,  # Keep structured format for future use
+            "interview_questions_structured": interview_questions  # Keep structured format for future use
         }
     except Exception as e:
         import traceback
@@ -434,6 +486,20 @@ def generate_comprehensive_analysis(resume_text: str, job_description_text: str)
         try:
             if cover_letter:
                 partial_results["cover_letter"] = cover_letter
+        except:
+            pass
+            
+        try:
+            if interview_questions_raw:
+                interview_questions = {
+                    "technical_questions": extract_section_by_tags(interview_questions_raw, "[SECTION:TECHNICAL_QUESTIONS]", "[/SECTION:TECHNICAL_QUESTIONS]"),
+                    "behavioral_questions": extract_section_by_tags(interview_questions_raw, "[SECTION:BEHAVIORAL_QUESTIONS]", "[/SECTION:BEHAVIORAL_QUESTIONS]")
+                }
+                interview_questions_str = "\n\n".join([
+                    f"## Technical Questions\n{interview_questions['technical_questions']}",
+                    f"## Behavioral Questions\n{interview_questions['behavioral_questions']}"
+                ])
+                partial_results["interview_questions"] = interview_questions_str
         except:
             pass
         

@@ -13,13 +13,21 @@
 
 .file-upload {
   width: 48%;
-  padding: 30px;
+  padding: 0px;
   border: 2px dashed var(--border-color);
   border-radius: var(--border-radius);
   text-align: center;
   transition: all 0.3s ease;
   background-color: var(--card-color);
   box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
 }
 
 .file-upload:hover {
@@ -28,11 +36,42 @@
   box-shadow: var(--shadow-md);
 }
 
+.file-upload::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, var(--primary-light) 0%, var(--primary-color) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.file-upload:hover::before {
+  opacity: 1;
+}
+
 .file-upload h3 {
   margin-top: 0;
   margin-bottom: 15px;
   color: var(--primary-color);
   font-weight: 600;
+  width: 100%;
+  position: relative;
+  display: inline-block;
+}
+
+.file-upload h3::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -5px;
+  width: 50px;
+  height: 2px;
+  background-color: var(--primary-light);
+  opacity: 0.5;
 }
 
 .file-upload input[type="file"] {
@@ -46,10 +85,12 @@
   padding: 12px 24px;
   border-radius: var(--border-radius);
   cursor: pointer;
-  margin-top: 15px;
+  margin-top: 0px;
   transition: all 0.3s ease;
   font-weight: 500;
   box-shadow: var(--shadow-sm);
+  min-width: 150px;
+  text-align: center;
 }
 
 .file-label:hover {
@@ -58,18 +99,40 @@
   box-shadow: var(--shadow-md);
 }
 
+.file-name-container {
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 10px 0;
+  transition: all 0.3s ease;
+  overflow: visible;
+}
+
 .file-name {
-  margin-top: 12px;
   font-size: 14px;
-  color: var(--text-light);
-  word-break: break-all;
+  color: var(--text-color);
+  word-break: break-word;
   background-color: rgba(67, 97, 238, 0.1);
-  padding: 8px 12px;
+  padding: 10px 15px;
   border-radius: var(--border-radius);
-  max-width: 100%;
+  max-width: 90%;
   overflow: hidden;
   text-overflow: ellipsis;
   display: inline-block;
+  transition: all 0.3s ease;
+  border-left: 3px solid var(--primary-color);
+  box-shadow: var(--shadow-sm);
+  font-weight: 500;
+  position: relative;
+}
+
+/* Add a visual cue that enhances the file name visibility */
+.file-name::before {
+  content: "📎";
+  margin-right: 5px;
+  opacity: 0.7;
 }
 
 .analyze-button {
@@ -114,26 +177,116 @@
   flex-direction: column;
   align-items: center;
   margin: 40px 0;
+  width: 100%;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.spinner {
-  border: 4px solid rgba(67, 97, 238, 0.1);
-  border-top: 4px solid var(--primary-color);
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 1s linear infinite;
+.progress-container {
+  width: 100%;
+  height: 8px;
+  background-color: rgba(67, 97, 238, 0.1);
+  border-radius: 4px;
+  margin-bottom: 20px;
+  overflow: hidden;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.progress-bar-animated {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary-light) 0%, var(--primary-color) 100%);
+  border-radius: 4px;
+  transition: width 0.8s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.loading p {
+.progress-bar-animated::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.loading-message {
   margin-top: 15px;
-  color: var(--text-light);
+  color: var(--primary-dark);
   font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+  min-height: 24px;
+}
+
+.loading-stages {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 25px;
+  position: relative;
+}
+
+.loading-stages::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: rgba(67, 97, 238, 0.1);
+  transform: translateY(-50%);
+  z-index: 0;
+}
+
+.loading-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.stage-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: rgba(67, 97, 238, 0.2);
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+  border: 2px solid var(--background-color);
+}
+
+.loading-stage.active .stage-dot {
+  background-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+}
+
+.stage-label {
+  font-size: 10px;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+.loading-stage.active .stage-label {
+  color: var(--primary-dark);
+  font-weight: 600;
 }
 
 .results {
@@ -199,6 +352,7 @@
   .file-upload {
     width: 100%;
     margin-bottom: 20px;
+    min-height: 250px;
   }
   
   .tabs {
@@ -207,8 +361,64 @@
   
   .cover-letter-content, 
   .resume-suggestions-content,
-  .skill-development-content {
-    padding: 15px;
+  .skill-development-content,
+  .interview-questions-content {
+    padding: 20px 15px;
+    font-size: 14px;
+  }
+  
+  .interview-questions-content p:nth-of-type(odd) {
+    padding: 10px;
+  }
+  
+  .interview-questions-content p:nth-of-type(even) {
+    padding: 0 10px 0 15px;
+  }
+  
+  .interview-questions-content h2 {
+    font-size: 1.3rem;
+  }
+  
+  .interview-questions-content h3 {
+    font-size: 1.1rem;
+  }
+  
+  .form-minimized .upload-section {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+  
+  .form-minimized .file-upload {
+    width: 100%;
+    margin-bottom: 10px;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    align-items: center;
+  }
+  
+  .form-minimized .file-name-container {
+    max-width: 150px;
+  }
+  
+  .form-minimized .file-name {
+    max-width: 100%;
+    font-size: 0.7rem;
+  }
+  
+  .form-minimized .file-label {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+  }
+  
+  .form-minimized .analyze-button {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+  }
+  
+  .form-minimized-controls {
+    flex-direction: column;
+    gap: 10px;
   }
 }
 
@@ -238,6 +448,7 @@
   transition: all 0.3s ease;
   white-space: nowrap;
   flex-shrink: 0;
+  position: relative;
 }
 
 .tab:hover {
@@ -251,17 +462,23 @@
 }
 
 .tab-content {
-  padding: 20px 0;
+  animation: fadeIn 0.5s ease;
+  padding: 10px 0;
 }
 
-.cover-letter-content, .resume-suggestions-content, .skill-development-content {
-  background-color: var(--card-color);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
+.cover-letter-content, 
+.resume-suggestions-content, 
+.skill-development-content,
+.interview-questions-content {
+  background-color: white;
   padding: 25px;
-  margin-bottom: 20px;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  white-space: pre-wrap;
+  font-size: 15px;
   line-height: 1.6;
   box-shadow: var(--shadow-sm);
+  margin-bottom: 20px;
 }
 
 h2 {
@@ -595,27 +812,45 @@ h2 {
 
 .upload-icon {
   font-size: 2.5rem;
-  margin: 10px 0;
+  margin: 15px 0;
   animation: float 3s ease-in-out infinite;
-  display: inline-block;
-  position: relative;
-}
-
-.upload-icon::after {
-  content: "↑";
-  position: absolute;
-  bottom: -8px;
-  right: -8px;
-  background-color: var(--primary-light);
-  color: white;
-  font-size: 0.9rem;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: pulse 2s infinite;
+  position: relative;
+  width: 70px;
+  height: 70px;
+  background-color: rgba(67, 97, 238, 0.05);
+  border-radius: 50%;
+  padding: 15px;
+  transition: all 0.3s ease;
+}
+
+.file-upload.file-selected .upload-icon {
+  background-color: rgba(67, 97, 238, 0.15);
+  transform: scale(0.9);
+  animation: none;
+}
+
+/* Enhance the file upload container when a file is selected */
+.file-upload.file-selected {
+  border-style: solid;
+  border-color: var(--primary-light);
+  background-color: rgba(67, 97, 238, 0.03);
+  position: relative;
+}
+
+.file-upload.file-selected::after {
+  content: "✓ File selected";
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: rgba(67, 97, 238, 0.1);
+  color: var(--primary-dark);
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 500;
 }
 
 @keyframes float {
@@ -657,63 +892,77 @@ h2 {
   overflow: visible;
   transition: all 0.3s ease;
   border-bottom: 1px solid var(--border-color);
-  margin-bottom: 20px;
-  padding-bottom: 20px;
+  margin-bottom: 30px;
+  padding: 25px;
   background-color: rgba(67, 97, 238, 0.03);
   border-radius: var(--border-radius);
-  padding: 20px;
+  box-shadow: var(--shadow-sm);
 }
 
 .form-minimized .upload-section {
+  display: flex;
   flex-wrap: wrap;
-  gap: 15px;
-  align-items: center;
-  justify-content: flex-start;
-  margin-bottom: 15px;
+  gap: 20px;
+  align-items: stretch;
+  justify-content: space-between;
+  margin-bottom: 20px;
 }
 
 .form-minimized .file-upload {
-  width: auto;
-  min-width: 45%;
-  padding: 10px 15px;
+  flex: 1 1 300px;
+  min-width: 300px;
+  padding: 15px;
   flex-direction: row;
   display: flex;
   align-items: center;
   justify-content: flex-start;
   text-align: left;
-  gap: 10px;
-  flex-wrap: wrap;
+  gap: 15px;
+  flex-wrap: nowrap;
   border: 1px solid var(--border-color);
   margin-bottom: 0;
+  min-height: unset;
+  border-radius: var(--border-radius);
+  background-color: var(--card-color);
+}
+
+.form-minimized .file-name-container {
+  flex: 1;
+  min-height: unset;
+  margin: 0;
+  padding: 0;
+  justify-content: flex-start;
+  overflow: hidden;
 }
 
 .form-minimized .file-name {
-  padding: 5px 8px;
+  padding: 6px 10px;
   margin: 0;
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 200px;
-  font-size: 0.8rem;
-  order: 3;
+  white-space: nowrap;
+  max-width: 100%;
+  font-size: 0.85rem;
 }
 
 .form-minimized .file-label {
   margin: 0;
   padding: 6px 12px;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   white-space: nowrap;
-  order: 4;
+  min-width: unset;
+  flex: 0 0 auto;
 }
 
 .form-minimized .analyze-button {
-  margin: 0;
-  padding: 8px 16px;
-  font-size: 0.9rem;
+  margin-left: auto;
+  padding: 10px 20px;
+  font-size: 0.95rem;
   white-space: nowrap;
   align-self: center;
   width: auto;
   box-shadow: var(--shadow-sm);
+  flex: 0 0 auto;
 }
 
 /* Create a collapsible form layout */
@@ -723,29 +972,6 @@ h2 {
   justify-content: space-between;
   align-items: center;
   margin-top: 15px;
-}
-
-@media (max-width: 768px) {
-  .form-minimized .upload-section {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .form-minimized .file-upload {
-    width: 100%;
-    margin-bottom: 10px;
-  }
-  
-  .form-minimized .analyze-button {
-    width: 100%;
-    max-width: none;
-    margin-left: 0;
-  }
-  
-  .form-minimized-controls {
-    flex-direction: column;
-    gap: 10px;
-  }
 }
 
 /* Loading tip */
@@ -831,8 +1057,402 @@ h2 {
 }
 
 .form-minimized .upload-icon {
-  font-size: 1.5rem;
   margin: 0;
+  font-size: 1.5rem;
+  width: 32px;
+  height: 32px;
   animation: none;
-  order: 2;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  padding: 0;
+}
+
+.form-minimized .upload-icon::after {
+  display: none;
+}
+
+.form-minimized h3 {
+  font-size: 0.9rem;
+  margin: 0;
+  font-weight: 600;
+  color: var(--primary-dark);
+  width: auto;
+  flex: 0 0 auto;
+  min-width: 120px;
+}
+
+.resume-suggestions-content, 
+.skill-development-content,
+.interview-questions-content {
+  color: var(--text-color);
+  line-height: 1.7;
+  counter-reset: suggestion-counter;
+}
+
+.file-upload.file-selected {
+  border-style: solid;
+  border-color: var(--primary-light);
+  background-color: rgba(67, 97, 238, 0.03);
+}
+
+.file-upload.file-selected::before {
+  opacity: 1;
+}
+
+.file-upload.file-selected .upload-icon {
+  animation: none;
+  transform: scale(0.9);
+}
+
+.file-upload.file-selected .upload-icon::after {
+  display: none;
+}
+
+.file-upload.file-selected h3 {
+  color: var(--primary-dark);
+}
+
+/* Dark mode specific styles */
+
+[data-theme="dark"] .file-upload {
+  background-color: var(--card-color);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .file-upload:hover {
+  border-color: var(--primary-color);
+}
+
+[data-theme="dark"] .file-name {
+  background-color: rgba(76, 201, 240, 0.1);
+  color: var(--text-color);
+  box-shadow: var(--shadow-sm);
+  border-left-color: var(--primary-color);
+}
+
+[data-theme="dark"] .resume-suggestions-content,
+[data-theme="dark"] .skill-development-content,
+[data-theme="dark"] .interview-questions-content,
+[data-theme="dark"] .cover-letter-content {
+  background-color: var(--card-color);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .results {
+  background-color: var(--card-color);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .score-card {
+  background-color: var(--background-color);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .tab.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+}
+
+[data-theme="dark"] .tab:hover {
+  color: var(--primary-light);
+}
+
+[data-theme="dark"] .file-upload.file-selected {
+  background-color: rgba(76, 201, 240, 0.05);
+  border-color: var(--primary-color);
+}
+
+[data-theme="dark"] .file-label {
+  background-color: var(--primary-color);
+}
+
+[data-theme="dark"] .file-label:hover {
+  background-color: var(--primary-light);
+}
+
+[data-theme="dark"] .analyze-button:not(:disabled) {
+  background-color: var(--primary-color);
+}
+
+[data-theme="dark"] .analyze-button:hover:not(:disabled) {
+  background-color: var(--primary-light);
+}
+
+/* Loading spinner in dark mode */
+[data-theme="dark"] .spinner {
+  border: 4px solid rgba(76, 201, 240, 0.1);
+  border-top: 4px solid var(--primary-color);
+}
+
+/* Ensure proper contrast for modal content in dark mode */
+[data-theme="dark"] .modal-content {
+  background-color: var(--card-color);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .interview-questions-content {
+  background-color: var(--card-color);
+  border-color: var(--primary-dark);
+  box-shadow: 0 0 10px rgba(76, 201, 240, 0.05);
+}
+
+[data-theme="dark"] .interview-questions h2 {
+  color: var(--primary-color);
+}
+
+/* Improved Interview Prep Section - Both Light and Dark Mode */
+
+.interview-questions-content {
+  padding: 25px;
+  border-radius: var(--border-radius);
+  line-height: 1.6;
+}
+
+.interview-questions-content h2 {
+  font-size: 1.5rem;
+  margin: 30px 0 20px;
+  color: var(--primary-dark);
+  border-bottom: 2px solid var(--primary-light);
+  padding-bottom: 8px;
+}
+
+.interview-questions-content h2:first-child {
+  margin-top: 0;
+}
+
+.interview-questions-content h3 {
+  font-size: 1.2rem;
+  margin: 25px 0 15px;
+  color: var(--primary-dark);
+}
+
+/* Question styling */
+.interview-questions-content p:nth-of-type(odd) {
+  font-weight: 600;
+  margin-top: 24px;
+  margin-bottom: 8px;
+  background-color: rgba(67, 97, 238, 0.05);
+  padding: 12px 15px;
+  border-radius: var(--border-radius);
+  border-left: 3px solid var(--primary-color);
+}
+
+/* Answer styling */
+.interview-questions-content p:nth-of-type(even) {
+  margin-bottom: 24px;
+  padding: 0 15px 0 18px;
+  border-left: 1px dashed var(--border-color);
+  color: var(--text-color);
+}
+
+/* Dark mode interview questions improvements */
+[data-theme="dark"] .interview-questions-content {
+  background-color: var(--card-color);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .interview-questions-content h2 {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-dark);
+}
+
+[data-theme="dark"] .interview-questions-content h3 {
+  color: var(--primary-light);
+}
+
+[data-theme="dark"] .interview-questions-content p:nth-of-type(odd) {
+  background-color: rgba(76, 201, 240, 0.05);
+  border-left-color: var(--primary-color);
+  color: var(--primary-light);
+}
+
+[data-theme="dark"] .interview-questions-content p:nth-of-type(even) {
+  border-left-color: var(--border-color);
+  color: var(--text-color);
+}
+
+.spinner {
+  border: 4px solid rgba(67, 97, 238, 0.1);
+  border-top: 4px solid var(--primary-color);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin-top: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Restore dark mode spinner and loading styles */
+[data-theme="dark"] .spinner {
+  border: 4px solid rgba(76, 201, 240, 0.1);
+  border-top: 4px solid var(--primary-color);
+}
+
+[data-theme="dark"] .progress-container {
+  background-color: rgba(76, 201, 240, 0.1);
+}
+
+[data-theme="dark"] .loading-message {
+  color: var(--primary-color);
+}
+
+[data-theme="dark"] .loading-stages::before {
+  background-color: rgba(76, 201, 240, 0.1);
+}
+
+[data-theme="dark"] .stage-dot {
+  background-color: rgba(76, 201, 240, 0.2);
+  border-color: var(--background-color);
+}
+
+[data-theme="dark"] .loading-stage.active .stage-dot {
+  background-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(76, 201, 240, 0.2);
+}
+
+[data-theme="dark"] .loading-stage.active .stage-label {
+  color: var(--primary-color);
+}
+
+/* Mobile responsive design improvements */
+@media (max-width: 768px) {
+  .form-minimized .upload-section {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .form-minimized .file-upload {
+    width: 100%;
+    min-width: 100%;
+    flex: 1 1 auto;
+  }
+  
+  .form-minimized .file-name-container {
+    max-width: 150px;
+  }
+  
+  .form-minimized .file-name {
+    max-width: 100%;
+    font-size: 0.8rem;
+  }
+  
+  .form-minimized .analyze-button {
+    margin-top: 10px;
+    width: 100%;
+  }
+}
+
+/* Remove the "NEW" badge CSS by adding an empty rule that overrides it */
+[data-theme="dark"] .tab[aria-label="Interview Prep"]::after {
+  content: none;
+}
+
+/* Dark mode tab styling */
+[data-theme="dark"] .tab {
+  color: var(--text-light);
+}
+
+[data-theme="dark"] .tab:hover {
+  color: var(--primary-color);
+}
+
+[data-theme="dark"] .tab.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+}
+
+/* Dark mode content styling */
+[data-theme="dark"] .cover-letter-content, 
+[data-theme="dark"] .resume-suggestions-content,
+[data-theme="dark"] .skill-development-content,
+[data-theme="dark"] .interview-questions-content {
+  background-color: var(--card-color);
+  border-color: var(--border-color);
+  color: var(--text-color);
+}
+
+.upload-icon::after {
+  content: "↑";
+  position: absolute;
+  bottom: -8px;
+  right: -8px;
+  background-color: var(--primary-light);
+  color: white;
+  font-size: 0.9rem;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 2s infinite;
+}
+
+/* Dark mode enhancements for file name visibility */
+[data-theme="dark"] .file-name {
+  color: var(--text-color);
+  background-color: rgba(76, 201, 240, 0.1);
+  box-shadow: var(--shadow-sm);
+  border-left-color: var(--primary-color);
+}
+
+[data-theme="dark"] .file-upload.file-selected::after {
+  background-color: rgba(76, 201, 240, 0.15);
+  color: var(--primary-color);
+}
+
+/* Make sure the minimized mode displays file names properly */
+.form-minimized .file-name-container {
+  flex: 1;
+  min-height: unset;
+  margin: 0;
+  padding: 0 5px;
+  justify-content: flex-start;
+  overflow: visible;
+}
+
+.form-minimized .file-name {
+  padding: 6px 10px 6px 12px;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  font-size: 0.85rem;
+  background-color: rgba(67, 97, 238, 0.08);
+}
+
+.form-minimized .file-name::before {
+  content: "📎";
+  margin-right: 4px;
+  font-size: 0.8rem;
+}
+
+.file-placeholder {
+  color: var(--text-light);
+  font-style: italic;
+  padding: 10px;
+  background-color: rgba(67, 97, 238, 0.03);
+  border-radius: var(--border-radius);
+  border: 1px dashed var(--border-color);
+  font-size: 14px;
+}
+
+[data-theme="dark"] .file-placeholder {
+  color: var(--text-light);
+  background-color: rgba(76, 201, 240, 0.03);
+  border-color: var(--border-color);
+}
+
+/* Make file upload area more interactive */
+.file-upload:active {
+  transform: scale(0.99);
 } 

@@ -10,6 +10,8 @@ const ResumeAnalyzer = () => {
   const [activeTab, setActiveTab] = useState('analysis');
   const [copied, setCopied] = useState(false);
   const [analysisComplete, setAnalysisComplete] = useState(false);
+  const [loadingStage, setLoadingStage] = useState(0);
+  const [loadingProgress, setLoadingProgress] = useState(0);
 
   useEffect(() => {
     if (results) {
@@ -63,6 +65,8 @@ const ResumeAnalyzer = () => {
     setError(null);
     setResults(null);
     setAnalysisComplete(false);
+    setLoadingStage(0);
+    setLoadingProgress(0);
 
     const formData = new FormData();
     formData.append('resume_file', resumeFile);
@@ -71,6 +75,35 @@ const ResumeAnalyzer = () => {
     console.log('Submitting files:', resumeFile, jobDescFile);
 
     try {
+      // Start loading animation
+      const simulateProgress = () => {
+        // Simulate progress stages
+        const stages = [
+          { stage: 0, progress: 10, message: "Extracting text from documents..." },
+          { stage: 1, progress: 25, message: "Analyzing resume content..." },
+          { stage: 2, progress: 40, message: "Comparing with job description..." },
+          { stage: 3, progress: 60, message: "Generating tailored recommendations..." },
+          { stage: 4, progress: 80, message: "Preparing interview questions..." },
+          { stage: 5, progress: 95, message: "Finalizing results..." }
+        ];
+
+        let currentStage = 0;
+        
+        const interval = setInterval(() => {
+          if (currentStage < stages.length) {
+            setLoadingStage(stages[currentStage].stage);
+            setLoadingProgress(stages[currentStage].progress);
+            currentStage++;
+          } else {
+            clearInterval(interval);
+          }
+        }, 2000); // Change stage every 2 seconds
+        
+        return interval;
+      };
+
+      const progressInterval = simulateProgress();
+
       console.log('Making API request to: http://localhost:8000/analyze_resume/');
       // Updated API endpoint to match the backend
       const response = await fetch('http://localhost:8000/analyze_resume/', {
@@ -82,6 +115,10 @@ const ResumeAnalyzer = () => {
           'Accept': 'application/json',
         },
       });
+
+      // Clear the interval once we get a response
+      clearInterval(progressInterval);
+      setLoadingProgress(100);
 
       if (!response.ok) {
         throw new Error(`Server responded with ${response.status}: ${response.statusText}`);
@@ -415,11 +452,21 @@ const ResumeAnalyzer = () => {
     return Math.round((score / 10) * 100);
   };
 
+  // Loading stages messages
+  const loadingMessages = [
+    "Extracting text from documents...",
+    "Analyzing resume content...",
+    "Comparing with job description...",
+    "Generating tailored recommendations...",
+    "Preparing interview questions...",
+    "Finalizing results..."
+  ];
+
   return (
     <div className="resume-analyzer">
       <form onSubmit={handleSubmit} className={analysisComplete ? 'form-minimized' : ''}>
         <div className="upload-section">
-          <div className="file-upload">
+          <div className={`file-upload ${resumeFile ? 'file-selected' : ''}`}>
             <h3>{analysisComplete ? 'Resume' : 'Upload Your Resume'}</h3>
             <div className="upload-icon">📄</div>
             <input 
@@ -427,14 +474,21 @@ const ResumeAnalyzer = () => {
               id="resume" 
               onChange={handleResumeChange}
               accept=".pdf,.doc,.docx"
+              aria-label="Upload resume file"
             />
-            {resumeFile && <p className="file-name">{resumeFile.name}</p>}
+            <div className="file-name-container" aria-live="polite">
+              {resumeFile ? (
+                <p className="file-name" title={resumeFile.name}>{resumeFile.name}</p>
+              ) : (
+                <p className="file-placeholder">No file selected</p>
+              )}
+            </div>
             <label htmlFor="resume" className="file-label">
               {resumeFile ? 'Change File' : 'Choose File'}
             </label>
           </div>
 
-          <div className="file-upload">
+          <div className={`file-upload ${jobDescFile ? 'file-selected' : ''}`}>
             <h3>{analysisComplete ? 'Job Description' : 'Upload Job Description'}</h3>
             <div className="upload-icon">📋</div>
             <input 
@@ -442,8 +496,15 @@ const ResumeAnalyzer = () => {
               id="jobDesc" 
               onChange={handleJobDescChange}
               accept=".pdf,.doc,.docx"
+              aria-label="Upload job description file"
             />
-            {jobDescFile && <p className="file-name">{jobDescFile.name}</p>}
+            <div className="file-name-container" aria-live="polite">
+              {jobDescFile ? (
+                <p className="file-name" title={jobDescFile.name}>{jobDescFile.name}</p>
+              ) : (
+                <p className="file-placeholder">No file selected</p>
+              )}
+            </div>
             <label htmlFor="jobDesc" className="file-label">
               {jobDescFile ? 'Change File' : 'Choose File'}
             </label>
@@ -479,9 +540,26 @@ const ResumeAnalyzer = () => {
 
       {loading && (
         <div className="loading">
+          <div className="progress-container">
+            <div 
+              className="progress-bar-animated" 
+              style={{width: `${loadingProgress}%`}}
+            ></div>
+          </div>
           <div className="spinner"></div>
-          <p>Analyzing your resume against the job description...</p>
+          <p className="loading-message">{loadingMessages[loadingStage]}</p>
           <p className="loading-tip">This may take 15-30 seconds</p>
+          <div className="loading-stages">
+            {loadingMessages.map((message, index) => (
+              <div 
+                key={index} 
+                className={`loading-stage ${index <= loadingStage ? 'active' : ''}`}
+              >
+                <span className="stage-dot"></span>
+                <span className="stage-label">{index + 1}</span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
@@ -511,6 +589,13 @@ const ResumeAnalyzer = () => {
               onClick={() => setActiveTab('skill-development')}
             >
               <span className="tab-icon">📈</span> Skill Development
+            </button>
+            <button 
+              className={`tab ${activeTab === 'interview-questions' ? 'active' : ''}`}
+              onClick={() => setActiveTab('interview-questions')}
+              aria-label="Interview Prep"
+            >
+              <span className="tab-icon">💬</span> Interview Prep
             </button>
           </div>
 
@@ -578,6 +663,21 @@ const ResumeAnalyzer = () => {
                   onClick={() => handleCopy(results.skill_development, 'skill-development')}
                 >
                   {copied === 'skill-development' ? '✓ Copied!' : 'Copy to Clipboard'}
+                </button>
+              </div>
+            )}
+
+            {activeTab === 'interview-questions' && (
+              <div className="interview-questions">
+                <h2><span className="section-icon">💬</span> Interview Questions & Answers</h2>
+                <div className="interview-questions-content">
+                  {formatResumeSuggestions(results.interview_questions)}
+                </div>
+                <button 
+                  className="copy-button"
+                  onClick={() => handleCopy(results.interview_questions, 'interview-questions')}
+                >
+                  {copied === 'interview-questions' ? '✓ Copied!' : 'Copy to Clipboard'}
                 </button>
               </div>
             )}

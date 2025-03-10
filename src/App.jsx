@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import ResumeAnalyzer from './components/ResumeAnalyzer';
 import Modal from './components/Modal';
@@ -181,6 +181,28 @@ const TermsOfServiceContent = () => (
 
 function App() {
   const [modalContent, setModalContent] = useState(null);
+  const [darkMode, setDarkMode] = useState(() => {
+    // Check if user has a saved preference
+    const savedTheme = localStorage.getItem('theme');
+    // Check if user prefers dark mode at system level
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    return savedTheme === 'dark' || (!savedTheme && prefersDark);
+  });
+
+  // Apply theme when darkMode state changes
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [darkMode]);
+
+  const toggleTheme = () => {
+    setDarkMode(!darkMode);
+  };
 
   const openModal = (content) => {
     setModalContent(content);
@@ -193,6 +215,19 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
+        <div className="theme-toggle-container">
+          <button 
+            className="theme-toggle" 
+            onClick={toggleTheme}
+            aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {darkMode ? (
+              <span className="theme-icon">☀️</span>
+            ) : (
+              <span className="theme-icon">🌙</span>
+            )}
+          </button>
+        </div>
         <div className="header-content">
           <h1>ResuMate <span className="logo-accent">AI</span></h1>
           <p>Analyze your resume against job descriptions with advanced AI to get personalized insights, suggestions, and skill development plans</p>
